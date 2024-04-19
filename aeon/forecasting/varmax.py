@@ -216,7 +216,6 @@ class VARMAX(_StatsModelsAdapter):
         "X-y-must-have-same-index": True,
         "enforce_index_type": None,
         "capability:pred_int": False,
-        "python_dependencies": "pandas<2.0.0",  # needs to be fixed with pandas==2.0.0
     }
 
     def __init__(
@@ -372,20 +371,24 @@ class VARMAX(_StatsModelsAdapter):
         # given with an integer index beginning at `start`...
         # but only when out-of-sample forecasting, i.e. when forecasting horizon is
         # greater than zero
-        if pd.__version__ < "2.0.0":
-            if (type(self._y.index) is pd.core.indexes.numeric.Int64Index) & (
-                any(fh.to_relative(self.cutoff) > 0)
-            ):
-                y_pred.index = y_pred.index + self._y.index[0]
-        else:
-            from pandas.api.types import is_any_real_numeric_dtype
+        abs_idx = fh.to_absolute_int(self._y.index[0], self.cutoff)
+        start, end = abs_idx[[0, -1]]
+        full_range = pd.RangeIndex(start=start, stop=end + 1)
 
-            if is_any_real_numeric_dtype(self._y.index) & any(
-                fh.to_relative(self.cutoff) > 0
-            ):
-                y_pred.index = y_pred.index + self._y.index[0]
+        y_pred = self._fitted_forecaster.predict(
+            start=start,
+            end=end,
+            dynamic=self.dynamic,
+            information_set=self.information_set,
+            signal_only=self.signal_only,
+            exog=X,
+        )
 
-        return y_pred.loc[fh.to_absolute(self.cutoff).to_pandas()]
+        y_pred.index = full_range
+        y_pred = y_pred.loc[abs_idx.to_pandas()]
+        y_pred.index = fh.to_absolute_index(self.cutoff)
+
+        return y_pred
 
     @classmethod
     def get_test_params(cls, parameter_set="default"):
