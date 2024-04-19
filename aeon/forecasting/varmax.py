@@ -386,7 +386,7 @@ class VARMAX(_StatsModelsAdapter):
 
         y_pred.index = full_range
         y_pred = y_pred.loc[abs_idx.to_pandas()]
-        y_pred.index = fh.to_absolute_index(self.cutoff)
+        y_pred.index = fh.to_absolute_int(self.cutoff)
 
         return y_pred
 
