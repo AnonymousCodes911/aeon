@@ -247,6 +247,7 @@ class VARMAX(_StatsModelsAdapter):
         information_set="predicted",
         signal_only=False,
         suppress_warnings=False,
+        cutoff=None,
     ):
         # Model parameters
         self.order = order
@@ -276,10 +277,11 @@ class VARMAX(_StatsModelsAdapter):
         self.information_set = information_set
         self.signal_only = signal_only
         self.suppress_warnings = suppress_warnings
+        self.cutoff = cutoff
 
         super().__init__()
 
-    def _fit_forecaster(self, y, X=None):
+    def _fit_forecaster(self, y, X=None, cutoff=None):
         """Fit forecaster to training data.
 
         Writes to self:
@@ -300,6 +302,11 @@ class VARMAX(_StatsModelsAdapter):
             warnings.filterwarnings("ignore")
 
         from statsmodels.tsa.statespace.varmax import VARMAX as _VARMAX
+
+        if cutoff is not None:
+            self.cutoff = cutoff
+        elif self.cutoff is None:
+            raise ValueError("`cutoff` must be given.")
 
         self._forecaster = _VARMAX(
             endog=y,
