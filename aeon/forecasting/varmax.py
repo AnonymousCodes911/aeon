@@ -303,6 +303,7 @@ class VARMAX(_StatsModelsAdapter):
 
         from statsmodels.tsa.statespace.varmax import VARMAX as _VARMAX
 
+        warnings.filterwarnings("ignore", message="forecasting cutoff must be given")
         if forecast_cutoff is not None:
             self.forecast_cutoff = forecast_cutoff
         elif self.forecast_cutoff is None:
