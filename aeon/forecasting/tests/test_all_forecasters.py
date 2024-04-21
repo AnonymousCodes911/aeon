@@ -206,7 +206,7 @@ class TestAllForecasters(ForecasterFixtureGenerator, QuickTester):
         y_train = make_series(
             n_columns=n_columns, index_type=index_type, n_timepoints=50
         )
-        cutoff = get_cutoff(y_train, return_index=True)
+        cutoff = get_cutoff(y_train)  # Remove 'return_index=True'
         fh = _make_fh(cutoff, fh_int, fh_type, is_relative)
         try:
             estimator_instance.fit(y_train, fh=fh)
