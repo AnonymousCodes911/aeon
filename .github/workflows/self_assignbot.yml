@@ -1,3 +1,5 @@
+name: Self-Assign Bot
+
 on:
   issue_comment:
     types: [created]
@@ -7,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check if comment is on PR
+      - name: Check if comment is on PR or Issue
         run: |
           # Check if the event is a PR
           if [[ "${{ github.event.issue.pull_request }}" != "" ]]; then
@@ -17,6 +19,7 @@ jobs:
             comment_body=$(jq --raw-output .comment.body "$GITHUB_EVENT_PATH")
             # Extract the username mentioned in the comment body
             mentioned_user=$(echo "$comment_body" | grep -o '@[[:alnum:]]*' | head -1 | sed 's/@//')
+
             # Check if a username was mentioned
             if [[ -n "$mentioned_user" ]]; then
               # Assign the PR to the mentioned user using GitHub API
