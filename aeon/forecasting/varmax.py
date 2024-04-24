@@ -247,7 +247,6 @@ class VARMAX(_StatsModelsAdapter):
         information_set="predicted",
         signal_only=False,
         suppress_warnings=False,
-        forecast_cutoff=None,
     ):
         # Model parameters
         self.order = order
@@ -277,11 +276,10 @@ class VARMAX(_StatsModelsAdapter):
         self.information_set = information_set
         self.signal_only = signal_only
         self.suppress_warnings = suppress_warnings
-        self.forecast_cutoff = forecast_cutoff
 
         super().__init__()
 
-    def _fit_forecaster(self, y, X=None, forecast_cutoff=None):
+    def _fit_forecaster(self, y, X=None):
         """Fit forecaster to training data.
 
         Writes to self:
@@ -291,7 +289,7 @@ class VARMAX(_StatsModelsAdapter):
         ----------
         y : array_like
             The observed time-series process :math:`y`, shaped n_obs x k_endog.
-        X : array_like, optional (default=None)
+        X : array_like, default=None
             Array of exogenous regressors, shaped n_obs x k.
 
         Returns
@@ -302,12 +300,6 @@ class VARMAX(_StatsModelsAdapter):
             warnings.filterwarnings("ignore")
 
         from statsmodels.tsa.statespace.varmax import VARMAX as _VARMAX
-
-        warnings.filterwarnings("ignore", message="forecasting cutoff must be given")
-        if forecast_cutoff is not None:
-            self.forecast_cutoff = forecast_cutoff
-        elif self.forecast_cutoff is None:
-            raise ValueError("`forecasting cutoff` must be given.")
 
         self._forecaster = _VARMAX(
             endog=y,
@@ -354,7 +346,7 @@ class VARMAX(_StatsModelsAdapter):
             The forecasters horizon with the steps ahead to to predict.
             Default is one-step ahead forecast,
             i.e. np.array([1])
-        X : pd.DataFrame, optional (default=None)
+        X : pd.DataFrame, default=None
             Exogenous variables.
 
         Returns
@@ -362,7 +354,9 @@ class VARMAX(_StatsModelsAdapter):
         y_pred : np.ndarray
             Returns series of predicted values.
         """
-        start, end = fh.to_absolute_int(self._y.index[0], self.cutoff)[[0, -1]]
+        abs_idx = fh.to_absolute_int(self._y.index[0], self.cutoff)
+        start, end = abs_idx[[0, -1]]
+        full_range = pd.RangeIndex(start=start, stop=end + 1)
 
         y_pred = self._fitted_forecaster.predict(
             start=start,
@@ -379,19 +373,6 @@ class VARMAX(_StatsModelsAdapter):
         # given with an integer index beginning at `start`...
         # but only when out-of-sample forecasting, i.e. when forecasting horizon is
         # greater than zero
-        abs_idx = fh.to_absolute_int(self._y.index[0], self.cutoff)
-        start, end = abs_idx[[0, -1]]
-        full_range = pd.RangeIndex(start=start, stop=end + 1)
-
-        y_pred = self._fitted_forecaster.predict(
-            start=start,
-            end=end,
-            dynamic=self.dynamic,
-            information_set=self.information_set,
-            signal_only=self.signal_only,
-            exog=X,
-        )
-
         y_pred.index = full_range
         y_pred = y_pred.loc[abs_idx.to_pandas()]
         y_pred.index = fh.to_absolute_int(self.cutoff)
