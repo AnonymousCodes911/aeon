@@ -354,7 +354,7 @@ class VARMAX(_StatsModelsAdapter):
         y_pred : np.ndarray
             Returns series of predicted values.
         """
-        abs_idx = fh.to_absolute_int(self.cutoff)
+        abs_idx = fh.to_absolute_int(self._y.index[0], self.cutoff)
         start, end = abs_idx[[0, -1]]
         full_range = pd.RangeIndex(start=start, stop=end + 1)
 
@@ -367,7 +367,8 @@ class VARMAX(_StatsModelsAdapter):
             exog=X,
         )
         y_pred.index = full_range
-        y_pred = y_pred.loc[abs_idx]
+        y_pred = y_pred.loc[abs_idx.to_pandas()]
+        y_pred.index = fh.to_absolute_int(self.cutoff)
 
         return y_pred
 
