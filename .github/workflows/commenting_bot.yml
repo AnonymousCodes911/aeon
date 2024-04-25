@@ -24,8 +24,8 @@ jobs:
 
       - name: Set env
         run: |
-          echo "ISSUE_NUMBER=$(jq --raw-output .issue.number "$GITHUB_EVENT_PATH")" >> $GITHUB_ENV
-          echo "COMMENT_BODY=$(jq --raw-output .comment.body "$GITHUB_EVENT_PATH")" >> $GITHUB_ENV
+          echo "ISSUE_NUMBER=${{ github.event.issue.number }}" >> $GITHUB_ENV
+          echo "EVENT_TYPE=${{ github.event_name }}" >> $GITHUB_ENV
 
       - name: Run script
         env:
