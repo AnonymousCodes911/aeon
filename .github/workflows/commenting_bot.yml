@@ -33,4 +33,4 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           EVENT_TYPE: ${{ github.event_name }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
-        run: python comment_bot.py
+        run: python .github/scripts/comment_bot.py
