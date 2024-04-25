@@ -4,6 +4,7 @@ Script for the Self-Assign Bot.
 It checks if a comment on an issue or PR includes the trigger
 phrase(as defined) and a mentioned user.
 If it does, it assigns the Issue/PR to the mentioned user.
+
 """
 
 import os
