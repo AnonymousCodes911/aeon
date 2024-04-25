@@ -25,13 +25,14 @@ issue = repo.get_issue(number=issue_number)
 comment_body = os.getenv("COMMENT_BODY")
 
 # Define trigger phrases
-trigger_phrases = ["Aeon-Assign bot", "assign this to", "please assign"]
+trigger_phrases = ["Aeon-Assign bot", "assign this to", "please assign","Please assign","assign","assigning"]
 trigger_pattern = "|".join(trigger_phrases)
 
 # Check if the comment includes the trigger phrase
 if re.search(trigger_pattern, comment_body, re.IGNORECASE):
     # Extract the username mentioned in the comment
-    mentioned_user = re.search("@[[:alnum:]]*", comment_body)
-    if mentioned_user:
+    mentioned_user_match = re.search(r"@([a-zA-Z0-9](?:-?[a-zA-Z0-9]){0,38})", comment_body)
+    if mentioned_user_match:
+        mentioned_user = mentioned_user_match.group(1)
         # Assign the Issue/PR to the user
         issue.add_to_assignees(mentioned_user)
