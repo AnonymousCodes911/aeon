@@ -1,3 +1,10 @@
+"""
+Script for Comment Bot. 
+
+Comments on new PR or Issues, 
+informing on how to trigger the 
+Self-Assign bot.
+"""
 import os
 from github import Github
 
@@ -9,7 +16,7 @@ def main():
     repo = g.get_repo(os.getenv("GITHUB_REPOSITORY"))
 
     # Get the event type (issue or pull request)
-    event_type = os.getenv("EVENT_TYPE")
+    event_type = os.getenv("GITHUB_EVENT_NAME")
 
     # Get the issue or pull request number from the event payload
     issue_number = int(os.getenv("ISSUE_NUMBER"))
@@ -22,13 +29,13 @@ def main():
 
     # Comment on the issue or pull request with instructions to trigger the Self-Assign bot
     comment_body = f"""
-To assign yourself to this {event_type}, please mention '@your_username' and use one of the following trigger phrases:
-- Aeon-Assign bot
-- assign this to
-- please assign
+    To assign yourself to this {event_type}, please mention '@your_username' and use one of the following trigger phrases:
+    - Aeon-Assign bot
+    - assign this to
+    - please assign
 
-For example: '@your_username please assign'
-"""
+    For example: 'Aeon-Assign bot assign @your-username'
+    """
     issue.create_comment(comment_body.strip())
 
 if __name__ == "__main__":
