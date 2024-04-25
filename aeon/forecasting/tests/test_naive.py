@@ -54,7 +54,7 @@ def test_strategy_last_seasonal(fh, sp):
     y_pred = f.predict(fh)
 
     # check predicted index
-    cutoff = get_cutoff(y_train)
+    cutoff = get_cutoff(y_train, return_index=True)
     _assert_correct_pred_time_index(y_pred.index, cutoff, fh)
 
     # check values
@@ -75,7 +75,7 @@ def test_strategy_mean_seasonal(fh, sp, window_length):
         y_pred = f.predict(fh)
 
         # check predicted index
-        cutoff = get_cutoff(y_train)
+        cutoff = get_cutoff(y_train, return_index=True)
         _assert_correct_pred_time_index(y_pred.index, cutoff, fh)
 
         if window_length is None:

@@ -478,30 +478,6 @@ class ForecastingHorizon:
         cutoff = self._coerce_cutoff_to_index_element(cutoff)
         return _to_absolute(fh=self, cutoff=cutoff)
 
-    def to_absolute_index(self, cutoff=None):
-        """Return absolute values of the horizon as a pandas.Index.
-
-        For a forecaster ``f`` that has ``fh`` being ``self``,
-        the return of this method with ``cutoff=f.cutoff`` is the same
-        as the expected index of the return of the forecaster's predict methods,
-        e.g., ``f.predict`` or ``f.predict_interval``
-
-        Parameters
-        ----------
-        cutoff : pd.Period, pd.Timestamp, int, or pd.Index
-            Cutoff value is required to convert a relative forecasting
-            horizon to an absolute one (and vice versa).
-            If pd.Index, last/latest value is considered the cutoff
-
-        Returns
-        -------
-        fh : ForecastingHorizon
-            Absolute representation of forecasting horizon.
-        """
-        cutoff = self._coerce_cutoff_to_index(cutoff)
-        fh_abs = _to_absolute(fh=self, cutoff=_HashIndex(cutoff))
-        return fh_abs.to_pandas()
-
     def to_absolute_int(self, start, cutoff=None):
         """Return absolute values as zero-based integer index starting from `start`.
 
@@ -675,16 +651,6 @@ class ForecastingHorizon:
         return f"{class_name}({pandas_repr}, is_relative={self.is_relative})"
 
 
-class _HashIndex:
-    """Helper to make cutoff: pd.Index hashable via lru_cache."""
-
-    def __init__(self, index):
-        self.index = index
-
-    def __hash__(self):
-        return int(pd.util.hash_pandas_object(self.index).sum())
-
-
 # This function needs to be outside ForecastingHorizon
 # since the lru_cache decorator has known, problematic interactions
 # with object methods, see B019 error of flake8-bugbear for a detail explanation.
@@ -692,8 +658,6 @@ class _HashIndex:
 # We cache the results from `to_relative()` and `to_absolute()` calls to speed up
 # computations, as these are the basic methods and often required internally when
 # calling different methods.
-
-
 @lru_cache(typed=True)
 def _to_relative(fh: ForecastingHorizon, cutoff=None) -> ForecastingHorizon:
     """Return forecasting horizon values relative to a cutoff.
