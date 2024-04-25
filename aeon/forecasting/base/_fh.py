@@ -520,7 +520,7 @@ class ForecastingHorizon:
             Absolute representation of forecasting horizon as zero-based
             integer index.
         """
-        cutoff = self._coerce_cutoff_to_index(cutoff)
+        cutoff = self._coerce_cutoff_to_index_element(cutoff)
         freq = self.freq
 
         absolute = self.to_absolute_index(cutoff)
