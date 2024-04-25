@@ -206,7 +206,7 @@ class TestAllForecasters(ForecasterFixtureGenerator, QuickTester):
         y_train = make_series(
             n_columns=n_columns, index_type=index_type, n_timepoints=50
         )
-        cutoff = get_cutoff(y_train)  # Remove 'return_index=True'
+        cutoff = get_cutoff(y_train, return_index=True)  # Remove 'return_index=True'
         fh = _make_fh(cutoff, fh_int, fh_type, is_relative)
         try:
             estimator_instance.fit(y_train, fh=fh)
@@ -247,7 +247,7 @@ class TestAllForecasters(ForecasterFixtureGenerator, QuickTester):
         try:
             estimator_instance.fit(y_train, X_train, fh=fh)
             y_pred = estimator_instance.predict(X=X_test)
-            cutoff = get_cutoff(y_train, return_index=True)
+            cutoff = get_cutoff(y_train)
             _assert_correct_pred_time_index(y_pred.index, cutoff, fh)
             _assert_correct_columns(y_pred, y_train)
         except NotImplementedError:
@@ -264,7 +264,7 @@ class TestAllForecasters(ForecasterFixtureGenerator, QuickTester):
         if fh_type == "timedelta":
             return None
         y_train = make_series(n_columns=n_columns, index_type=index_type)
-        cutoff = get_cutoff(y_train, return_index=True)
+        cutoff = get_cutoff(y_train)
         steps = -np.arange(len(y_train))
         fh = _make_fh(cutoff, steps, fh_type, is_relative)
 
@@ -287,7 +287,7 @@ class TestAllForecasters(ForecasterFixtureGenerator, QuickTester):
             assert list(pred_int.columns) == ["lower", "upper"]
 
             # check time index
-            cutoff = get_cutoff(y_train, return_index=True)
+            cutoff = get_cutoff(y_train)
             _assert_correct_pred_time_index(pred_int.index, cutoff, fh_int)
             # check values
             assert np.all(pred_int["upper"] >= pred_int["lower"])
@@ -343,7 +343,7 @@ class TestAllForecasters(ForecasterFixtureGenerator, QuickTester):
         # check if the input is a dataframe
         assert isinstance(pred_quantiles, pd.DataFrame)
         # check time index (also checks forecasting horizon is more than one element)
-        cutoff = get_cutoff(y_train, return_index=True)
+        cutoff = get_cutoff(y_train)
         _assert_correct_pred_time_index(pred_quantiles.index, cutoff, fh)
         # Forecasters where name of variables do not exist
         # In this cases y_train is series - the upper level in dataframe == 'Quantiles'

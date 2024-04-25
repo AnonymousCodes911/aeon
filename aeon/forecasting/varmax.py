@@ -354,7 +354,9 @@ class VARMAX(_StatsModelsAdapter):
         y_pred : np.ndarray
             Returns series of predicted values.
         """
-        start, end = fh.to_absolute_int(self._y.index[0], self.cutoff)[[0, -1]]
+        abs_idx = fh.to_absolute_int(self._y.index[0], self.cutoff)
+        start, end = abs_idx[[0, -1]]
+        full_range = pd.RangeIndex(start=start, stop=end + 1)
 
         y_pred = self._fitted_forecaster.predict(
             start=start,
@@ -364,6 +366,13 @@ class VARMAX(_StatsModelsAdapter):
             signal_only=self.signal_only,
             exog=X,
         )
+
+        # statsmodel returns zero-based index when index is of type int with the
+        # following warning
+        # ValueWarning: No supported index is available. Prediction results will be
+        # given with an integer index beginning at `start`...
+        # but only when out-of-sample forecasting, i.e. when forecasting horizon is
+        # greater than zero
         if pd.__version__ < "2.0.0":
             if (type(self._y.index) is pd.core.indexes.numeric.Int64Index) & (
                 any(fh.to_relative(self.cutoff) > 0)
@@ -377,7 +386,11 @@ class VARMAX(_StatsModelsAdapter):
             ):
                 y_pred.index = y_pred.index + self._y.index[0]
 
-        return y_pred.loc[fh.to_absolute(self.cutoff).to_pandas()]
+        y_pred.index = full_range
+        y_pred = y_pred.loc[abs_idx.to_pandas()]
+        y_pred.index = fh.to_absolute_int(self.cutoff)
+
+        return y_pred
 
     @classmethod
     def get_test_params(cls, parameter_set="default"):
