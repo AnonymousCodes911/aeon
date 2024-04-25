@@ -16,7 +16,7 @@ def main():
     repo = g.get_repo(os.getenv("GITHUB_REPOSITORY"))
 
     # Get the event type (issue or pull request)
-    event_type = os.getenv("GITHUB_EVENT_NAME")
+    event_type = os.getenv("EVENT_TYPE")
 
     # Get the issue or pull request number from the event payload
     issue_number = int(os.getenv("ISSUE_NUMBER"))
