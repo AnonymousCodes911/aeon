@@ -206,7 +206,7 @@ class TestAllForecasters(ForecasterFixtureGenerator, QuickTester):
         y_train = make_series(
             n_columns=n_columns, index_type=index_type, n_timepoints=50
         )
-        cutoff = get_cutoff(y_train, return_index=True)  # Remove 'return_index=True'
+        cutoff = get_cutoff(y_train, return_index=True)
         fh = _make_fh(cutoff, fh_int, fh_type, is_relative)
         try:
             estimator_instance.fit(y_train, fh=fh)
@@ -247,7 +247,7 @@ class TestAllForecasters(ForecasterFixtureGenerator, QuickTester):
         try:
             estimator_instance.fit(y_train, X_train, fh=fh)
             y_pred = estimator_instance.predict(X=X_test)
-            cutoff = get_cutoff(y_train)
+            cutoff = get_cutoff(y_train, return_index=True)
             _assert_correct_pred_time_index(y_pred.index, cutoff, fh)
             _assert_correct_columns(y_pred, y_train)
         except NotImplementedError:
@@ -264,7 +264,7 @@ class TestAllForecasters(ForecasterFixtureGenerator, QuickTester):
         if fh_type == "timedelta":
             return None
         y_train = make_series(n_columns=n_columns, index_type=index_type)
-        cutoff = get_cutoff(y_train)
+        cutoff = get_cutoff(y_train, return_index=True)
         steps = -np.arange(len(y_train))
         fh = _make_fh(cutoff, steps, fh_type, is_relative)
 
