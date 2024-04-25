@@ -1,7 +1,7 @@
 """
 Script for the Self-Assign Bot.
 
-It checks if a comment on an issue or PR includes the trigger
+It checks if a comment on an issue or PR includes the Trigger
 phrase(as defined) and a mentioned user.
 If it does, it assigns the Issue/PR to the mentioned user.
 
