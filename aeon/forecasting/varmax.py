@@ -354,9 +354,7 @@ class VARMAX(_StatsModelsAdapter):
         y_pred : np.ndarray
             Returns series of predicted values.
         """
-        abs_idx = fh.to_absolute_int(self._y.index[0], self.cutoff)
-        start, end = abs_idx[[0, -1]]
-        full_range = pd.RangeIndex(start=start, stop=end + 1)
+        start, end = fh.to_absolute_int(self._y.index[0], self.cutoff)[[0, -1]]
 
         y_pred = self._fitted_forecaster.predict(
             start=start,
@@ -366,11 +364,20 @@ class VARMAX(_StatsModelsAdapter):
             signal_only=self.signal_only,
             exog=X,
         )
-        y_pred.index = full_range
-        y_pred = y_pred.loc[abs_idx.to_pandas()]
-        y_pred.index = fh.to_absolute_int(self.cutoff)
+        if pd.__version__ < "2.0.0":
+            if (type(self._y.index) is pd.core.indexes.numeric.Int64Index) & (
+                any(fh.to_relative(self.cutoff) > 0)
+            ):
+                y_pred.index = y_pred.index + self._y.index[0]
+        else:
+            from pandas.api.types import is_any_real_numeric_dtype
 
-        return y_pred
+            if is_any_real_numeric_dtype(self._y.index) & any(
+                fh.to_relative(self.cutoff) > 0
+            ):
+                y_pred.index = y_pred.index + self._y.index[0]
+
+        return y_pred.loc[fh.to_absolute(self.cutoff).to_pandas()]
 
     @classmethod
     def get_test_params(cls, parameter_set="default"):
