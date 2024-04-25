@@ -33,7 +33,5 @@ if re.search(trigger_pattern, comment_body, re.IGNORECASE):
     # Extract the username mentioned in the comment
     mentioned_user = re.search("@[[:alnum:]]*", comment_body)
     if mentioned_user:
-        # Remove the '@' from the username
-        mentioned_user = mentioned_user.group(0)[1:]
         # Assign the Issue/PR to the user
         issue.add_to_assignees(mentioned_user)
