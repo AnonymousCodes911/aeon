@@ -287,7 +287,7 @@ class TestAllForecasters(ForecasterFixtureGenerator, QuickTester):
             assert list(pred_int.columns) == ["lower", "upper"]
 
             # check time index
-            cutoff = get_cutoff(y_train)
+            cutoff = get_cutoff(y_train, return_index=True)
             _assert_correct_pred_time_index(pred_int.index, cutoff, fh_int)
             # check values
             assert np.all(pred_int["upper"] >= pred_int["lower"])
@@ -343,7 +343,7 @@ class TestAllForecasters(ForecasterFixtureGenerator, QuickTester):
         # check if the input is a dataframe
         assert isinstance(pred_quantiles, pd.DataFrame)
         # check time index (also checks forecasting horizon is more than one element)
-        cutoff = get_cutoff(y_train)
+        cutoff = get_cutoff(y_train, return_index=True)
         _assert_correct_pred_time_index(pred_quantiles.index, cutoff, fh)
         # Forecasters where name of variables do not exist
         # In this cases y_train is series - the upper level in dataframe == 'Quantiles'

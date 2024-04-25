@@ -546,7 +546,9 @@ class ForecastingHorizon:
         # Out: Index([<0 * Hours>, <4 * Hours>, <8 * Hours>], dtype = 'object')
         # [v - periods[0] for v in periods]
         # Out: Index([<0 * Hours>, <2 * Hours>, <4 * Hours>], dtype='object')
-        integers = pd.Index([date - start for date in absolute])
+
+        # Convert Timestamp to string before hashing
+        integers = pd.Index([str(date) - str(start) for date in absolute])
 
         if isinstance(absolute, (pd.PeriodIndex, pd.DatetimeIndex)):
             integers = _coerce_duration_to_int(integers, freq=freq)
