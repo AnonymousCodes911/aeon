@@ -24,8 +24,10 @@ def main():
 
     # Get the issue or pull request object
     if event_type == "issues" and issue_number:
+        event_type="Issue"
         issue = repo.get_issue(number=int(issue_number))
     elif event_type == "pull_request" and pr_number:
+        event_type="Pull Request"
         issue = repo.get_issue(number=int(pr_number))  # get the issue object associated with the PR
 
     # Comment on the issue or pull request with instructions to trigger the Self-Assign bot
