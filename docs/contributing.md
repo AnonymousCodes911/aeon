@@ -30,9 +30,9 @@ To assign yourself an **Issue/Pull Request**, please mention '@your_username' an
     ```
     Aeon-Assign bot assign @your-username
     ```
-If it is a larger issue with multiple components, indicate which part you are
-working on. A Core Developer may suggest a different issue if the one you chose is
-complex or somebody is already working on it.
+    If it is a larger issue with multiple components, indicate which part you are
+    working on. A Core Developer may suggest a different issue if the one you chose is
+    complex or somebody is already working on it.
 5. Create a [pull request (PR)](https://github.com/aeon-toolkit/aeon/compare)
 with your changes from your fork. For help, see the [GitHub documentation](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork)
 or ask in Slack. Follow the PR template and checklist.
