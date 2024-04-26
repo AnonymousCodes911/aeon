@@ -19,13 +19,14 @@ def main():
     event_type = os.getenv("EVENT_TYPE")
 
     # Get the issue or pull request number from the event payload
-    issue_number = int(os.getenv("ISSUE_NUMBER"))
+    issue_number = os.getenv("ISSUE_NUMBER")
+    pr_number = os.getenv("PR_NUMBER")
 
     # Get the issue or pull request object
-    if event_type == "issues":
-        issue = repo.get_issue(number=issue_number)
-    elif event_type == "pull_request":
-        issue = repo.get_pull(number=issue_number)
+    if event_type == "issues" and issue_number:
+        issue = repo.get_issue(number=int(issue_number))
+    elif event_type == "pull_request" and pr_number:
+        issue = repo.get_pull(number=int(pr_number))
 
     # Comment on the issue or pull request with instructions to trigger the Self-Assign bot
     comment_body = f"""
