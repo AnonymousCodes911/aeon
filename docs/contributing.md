@@ -20,14 +20,13 @@ for creating a fork of `aeon`.
 3. Pick an `enhancement`, `documentation` or `maintenance` issue from the [issue list](https://github.com/aeon-toolkit/aeon/issues)
 to complete i.e. improving an algorithm, docstring or test. The [good first issue](https://github.com/aeon-toolkit/aeon/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
 list may be a good place to start.
-4. Post on the issue which you want to work on, so that others know you are working on it.
-To assign yourself an **Issue/Pull Request**, please mention '@your_username' and use one of the following trigger phrases:
+4. Post on the issue which you want to work on, so that others know you are working on it. To assign yourself an **Issue/Pull Request**, please mention '@your_username' and use one of the following trigger phrases:
     - Aeon-Assign bot
     - assign
     - assign this to
 
     For example:
-    ```
+    ```python
     Aeon-Assign bot assign @your-username
     ```
     If it is a larger issue with multiple components, indicate which part you are
