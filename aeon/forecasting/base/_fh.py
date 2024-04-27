@@ -478,38 +478,14 @@ class ForecastingHorizon:
         cutoff = self._coerce_cutoff_to_index_element(cutoff)
         return _to_absolute(fh=self, cutoff=cutoff)
 
-    def to_absolute_index(self, cutoff=None):
-        """Return absolute values of the horizon as a pandas.Index.
-
-        For a forecaster ``f`` that has ``fh`` being ``self``,
-        the return of this method with ``cutoff=f.cutoff`` is the same
-        as the expected index of the return of the forecaster's predict methods,
-        e.g., ``f.predict`` or ``f.predict_interval``
-
-        Parameters
-        ----------
-        cutoff : pd.Period, pd.Timestamp, int, or pd.Index
-            Cutoff value is required to convert a relative forecasting
-            horizon to an absolute one (and vice versa).
-            If pd.Index, last/latest value is considered the cutoff
-
-        Returns
-        -------
-        fh : ForecastingHorizon
-            Absolute representation of forecasting horizon.
-        """
-        cutoff = self._coerce_cutoff_to_index_element(cutoff)
-        fh_abs = _to_absolute(fh=self, cutoff=_HashIndex(cutoff))
-        return fh_abs.to_pandas()
-
     def to_absolute_int(self, start, cutoff=None):
-        """Return absolute values as zero-based integer index starting from ``start``.
+        """Return absolute values as zero-based integer index starting from `start`.
 
         Parameters
         ----------
         start : pd.Period, pd.Timestamp, int
             Start value returned as zero.
-        cutoff : pd.Period, pd.Timestamp, int, or pd.Index, optional (default=None)
+        cutoff : pd.Period, pd.Timestamp, int, or pd.Index, default=None
             Cutoff value required to convert a relative forecasting
             horizon to an absolute one (and vice versa).
             If pd.Index, last/latest value is considered the cutoff
@@ -523,10 +499,14 @@ class ForecastingHorizon:
         cutoff = self._coerce_cutoff_to_index_element(cutoff)
         freq = self.freq
 
-        absolute = self.to_absolute_index(cutoff)
+        if isinstance(cutoff, pd.Timestamp):
+            # coerce to pd.Period for reliable arithmetic operations and
+            # computations of time deltas
+            cutoff = _coerce_to_period(cutoff, freq=freq)
 
+        absolute = self.to_absolute(cutoff).to_pandas()
         if isinstance(absolute, pd.DatetimeIndex):
-            # coerce to pd.Period for reliable arithmetic and computations of
+            # coerce to pd.Period for reliable arithmetics and computations of
             # time deltas
             absolute = _coerce_to_period(absolute, freq=freq)
 
@@ -546,9 +526,7 @@ class ForecastingHorizon:
         # Out: Index([<0 * Hours>, <4 * Hours>, <8 * Hours>], dtype = 'object')
         # [v - periods[0] for v in periods]
         # Out: Index([<0 * Hours>, <2 * Hours>, <4 * Hours>], dtype='object')
-
-        # Convert Timestamp to string before hashing
-        integers = pd.Index([str(date) - str(start) for date in absolute])
+        integers = pd.Index([date - start for date in absolute])
 
         if isinstance(absolute, (pd.PeriodIndex, pd.DatetimeIndex)):
             integers = _coerce_duration_to_int(integers, freq=freq)
@@ -671,16 +649,6 @@ class ForecastingHorizon:
         class_name = self.__class__.__name__
         pandas_repr = repr(self.to_pandas()).split("(")[-1].strip(")")
         return f"{class_name}({pandas_repr}, is_relative={self.is_relative})"
-
-
-class _HashIndex:
-    """Helper to make cutoff: pd.Index hashable via lru_cache."""
-
-    def __init__(self, index):
-        self.index = index
-
-    def __hash__(self):
-        return int(pd.util.hash_pandas_object(self.index).sum())
 
 
 # This function needs to be outside ForecastingHorizon

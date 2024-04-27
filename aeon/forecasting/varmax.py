@@ -336,8 +336,9 @@ class VARMAX(_StatsModelsAdapter):
     # for two reasons:
     # 1. to pass in `dynamic`, `information_set` and `signal_only`
     # 2. to deal with statsmodel integer indexing issue
-    def _predict(self, fh, X):
-        """Wrap Statmodel's VARMAX forecast method.
+    def _predict(self, fh, X=None):
+        """
+        Wrap Statmodel's VARMAX forecast method.
 
         Parameters
         ----------
@@ -345,7 +346,7 @@ class VARMAX(_StatsModelsAdapter):
             The forecasters horizon with the steps ahead to to predict.
             Default is one-step ahead forecast,
             i.e. np.array([1])
-        X : pd.DataFrame, optional (default=None)
+        X : pd.DataFrame, default=None
             Exogenous variables.
 
         Returns
@@ -353,9 +354,7 @@ class VARMAX(_StatsModelsAdapter):
         y_pred : np.ndarray
             Returns series of predicted values.
         """
-        abs_idx = fh.to_absolute_int(self._y.index[0], self.cutoff)
-        start, end = abs_idx[[0, -1]]
-        full_range = pd.RangeIndex(start=start, stop=end + 1)
+        start, end = fh.to_absolute_int(self._y.index[0], self.cutoff)[[0, -1]]
 
         y_pred = self._fitted_forecaster.predict(
             start=start,
@@ -366,11 +365,26 @@ class VARMAX(_StatsModelsAdapter):
             exog=X,
         )
 
-        y_pred.index = full_range
-        y_pred = y_pred.loc[abs_idx.to_pandas()]
-        y_pred.index = fh.to_absolute_index(self.cutoff)
+        # statsmodel returns zero-based index when index is of type int with the
+        # following warning
+        # ValueWarning: No supported index is available. Prediction results will be
+        # given with an integer index beginning at `start`...
+        # but only when out-of-sample forecasting, i.e. when forecasting horizon is
+        # greater than zero
+        if pd.__version__ < "2.0.0":
+            if (type(self._y.index) is pd.core.indexes.numeric.Int64Index) & (
+                any(fh.to_relative(self.cutoff) > 0)
+            ):
+                y_pred.index = y_pred.index + self._y.index[0]
+        else:
+            from pandas.api.types import is_any_real_numeric_dtype
 
-        return y_pred
+            if is_any_real_numeric_dtype(self._y.index) & any(
+                fh.to_relative(self.cutoff) > 0
+            ):
+                y_pred.index = y_pred.index + self._y.index[0]
+
+        return y_pred.loc[fh.to_absolute(self.cutoff).to_pandas()]
 
     @classmethod
     def get_test_params(cls, parameter_set="default"):
