@@ -217,6 +217,7 @@ class VARMAX(_StatsModelsAdapter):
         "enforce_index_type": None,
         "capability:pred_int": False,
         "python_dependencies": "pandas<2.0.0",  # needs to be fixed with pandas==2.0.0
+        # Testing with full-pytest-actions
     }
 
     def __init__(
