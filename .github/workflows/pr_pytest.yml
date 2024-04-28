@@ -131,7 +131,7 @@ jobs:
 
       - name: Run tests
         # run the full test suit if a PR has the 'full pytest actions' label
-        run: python -m pytest --prtesting ${{ github.event_name != 'pull_request' || !contains(github.event.pull_request.labels.*.name, 'full pytest actions') }}
+        run: python -m pytest --prtesting ${{ github.event_name != 'pull_request' || !contains(github.event.pull_request.labels.*.name, 'bug') }}
 
   codecov:
     # run the code coverage job if a PR has the 'codecov actions' label
